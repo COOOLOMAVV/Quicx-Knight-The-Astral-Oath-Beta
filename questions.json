@@ -1,0 +1,184 @@
+[
+  {
+    "question": "What is 2 + 2?",
+    "options": ["3", "4", "5", "6"],
+    "answer": "4",
+    "difficulty": "Boss"
+  },
+  {
+    "question": "What color do you get when you mix red and blue?",
+    "options": ["Purple", "Green", "Orange", "Pink"],
+    "answer": "Purple",
+    "difficulty": "Easy"
+  },
+  {
+    "question": "Which planet is closest to the Sun?",
+    "options": ["Venus", "Earth", "Mercury", "Mars"],
+    "answer": "Mercury",
+    "difficulty": "Easy"
+  },
+  {
+    "question": "How many days are there in a week?",
+    "options": ["5", "6", "7", "8"],
+    "answer": "7",
+    "difficulty": "Easy"
+  },
+  {
+    "question": "Which animal is known as the King of the Jungle?",
+    "options": ["Tiger", "Elephant", "Lion", "Giraffe"],
+    "answer": "Lion",
+    "difficulty": "Easy"
+  },
+  {
+    "question": "What shape has three sides?",
+    "options": ["Square", "Triangle", "Circle", "Rectangle"],
+    "answer": "Triangle",
+    "difficulty": "Easy"
+  },
+  {
+    "question": "What do bees make?",
+    "options": ["Milk", "Honey", "Silk", "Wax"],
+    "answer": "Honey",
+    "difficulty": "Easy"
+  },
+  {
+    "question": "Which ocean is the largest?",
+    "options": ["Atlantic", "Indian", "Pacific", "Arctic"],
+    "answer": "Pacific",
+    "difficulty": "Easy"
+  },
+  {
+    "question": "What gas do humans breathe in to survive?",
+    "options": ["Oxygen", "Nitrogen", "Carbon Dioxide", "Helium"],
+    "answer": "Oxygen",
+    "difficulty": "Easy"
+  },
+  {
+    "question": "How many months are in a year?",
+    "options": ["10", "11", "12", "13"],
+    "answer": "12",
+    "difficulty": "Easy"
+  },
+
+  {
+    "question": "What is the capital city of Japan?",
+    "options": ["Beijing", "Seoul", "Tokyo", "Osaka"],
+    "answer": "Tokyo",
+    "difficulty": "Medium"
+  },
+  {
+    "question": "What is 15 × 3?",
+    "options": ["30", "35", "45", "40"],
+    "answer": "45",
+    "difficulty": "Medium"
+  },
+  {
+    "question": "Which element has the chemical symbol 'O'?",
+    "options": ["Oxygen", "Gold", "Osmium", "Oxide"],
+    "answer": "Oxygen",
+    "difficulty": "Medium"
+  },
+  {
+    "question": "In what year did World War II end?",
+    "options": ["1943", "1944", "1945", "1946"],
+    "answer": "1945",
+    "difficulty": "Medium"
+  },
+  {
+    "question": "Which is the largest planet in our solar system?",
+    "options": ["Earth", "Jupiter", "Saturn", "Neptune"],
+    "answer": "Jupiter",
+    "difficulty": "Medium"
+  },
+  {
+    "question": "What is the boiling point of water at sea level (in °C)?",
+    "options": ["90", "95", "100", "105"],
+    "answer": "100",
+    "difficulty": "Medium"
+  },
+  {
+    "question": "Who painted the Mona Lisa?",
+    "options": ["Van Gogh", "Picasso", "Leonardo da Vinci", "Michelangelo"],
+    "answer": "Leonardo da Vinci",
+    "difficulty": "Medium"
+  },
+  {
+    "question": "What part of the plant conducts photosynthesis?",
+    "options": ["Root", "Stem", "Leaf", "Flower"],
+    "answer": "Leaf",
+    "difficulty": "Medium"
+  },
+  {
+    "question": "Which metal is liquid at room temperature?",
+    "options": ["Iron", "Mercury", "Silver", "Lead"],
+    "answer": "Mercury",
+    "difficulty": "Medium"
+  },
+  {
+    "question": "Who wrote 'Romeo and Juliet'?",
+    "options": ["Charles Dickens", "William Shakespeare", "Mark Twain", "Jane Austen"],
+    "answer": "William Shakespeare",
+    "difficulty": "Medium"
+  },
+
+  {
+    "question": "What is the smallest prime number greater than 100?",
+    "options": ["101", "103", "107", "109"],
+    "answer": "101",
+    "difficulty": "Hard"
+  },
+  {
+    "question": "Which planet has the most moons?",
+    "options": ["Jupiter", "Saturn", "Uranus", "Neptune"],
+    "answer": "Saturn",
+    "difficulty": "Hard"
+  },
+  {
+    "question": "Who developed the theory of general relativity?",
+    "options": ["Isaac Newton", "Albert Einstein", "Galileo Galilei", "Niels Bohr"],
+    "answer": "Albert Einstein",
+    "difficulty": "Hard"
+  },
+  {
+    "question": "Which country is known as the Land of the Rising Sun?",
+    "options": ["China", "Japan", "Thailand", "South Korea"],
+    "answer": "Japan",
+    "difficulty": "Hard"
+  },
+  {
+    "question": "What is the square root of 256?",
+    "options": ["14", "15", "16", "18"],
+    "answer": "16",
+    "difficulty": "Hard"
+  },
+  {
+    "question": "Which element has the highest melting point?",
+    "options": ["Iron", "Tungsten", "Platinum", "Carbon"],
+    "answer": "Tungsten",
+    "difficulty": "Hard"
+  },
+  {
+    "question": "What is the chemical formula for table salt?",
+    "options": ["NaCl", "KCl", "H2O", "Na2CO3"],
+    "answer": "NaCl",
+    "difficulty": "Hard"
+  },
+  {
+    "question": "Who was the first person to step on the Moon?",
+    "options": ["Neil Armstrong", "Buzz Aldrin", "Yuri Gagarin", "Michael Collins"],
+    "answer": "Neil Armstrong",
+    "difficulty": "Hard"
+  },
+  {
+    "question": "What is the hardest natural substance on Earth?",
+    "options": ["Diamond", "Gold", "Iron", "Quartz"],
+    "answer": "Diamond",
+    "difficulty": "Hard"
+  },
+  {
+    "question": "Which organ in the human body filters blood?",
+    "options": ["Heart", "Kidney", "Liver", "Lungs"],
+    "answer": "Kidney",
+    "difficulty": "Hard"
+  }
+]
