@@ -3,29 +3,24 @@ import os
 import random
 import hashlib
 import re
-import traceback  # Add this import
+import traceback
 from typing import Optional
-import winsound  # For sound effects
-
+import winsound
 USERS_FILE = "users.json"
 ADMINS_FILE = "admins.json"
 LEADERBOARD_FILE = "leaderboard.json"
 QUESTION_FILE = "questions.json"
 SAVE_DIR = "saves"
-
 USERS = {}
 ADMINS = {}
 QUESTIONS = []
 LEADERBOARD = []
-
 DEV_MODE = {"god_mode": False, "show_answers": False, "instant_win": False}
-SOUND_ENABLED = True  # Global sound toggle
-
+SOUND_ENABLED = True
 ITEMS = {
     "potion": {"name": "Healing Potion", "desc": "Restores 30 HP", "price": 50},
     "shield": {"name": "Shield", "desc": "Provides 3 shield points to block hits", "price": 100},
 }
-
 DEFAULT_PLAYER = {
     "name": "Hero",
     "level": 1,
@@ -42,8 +37,6 @@ DEFAULT_PLAYER = {
     "shield_points": 0,
     "story_shown": False
 }
-
-# Story data
 STORY_INTRO = """
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                                                                            ║
@@ -73,7 +66,6 @@ STORY_INTRO = """
 ║                                                                            ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 """
-
 STORY_CHAPTERS = {
     1: {"range": (1, 5), "name": "Chapter 1: Awakening Shadows",
          "easy": "The Rift's echoes are faint here. Slimes, born of corrupted stardust, test your resolve. Answer wisely to reclaim your first memories.",
@@ -106,10 +98,8 @@ STORY_CHAPTERS = {
          "boss": "Dragons of myth, unbound by time, test the eternity of your Oath.",
          "random": "The void itself manifests as endless foes. Your journey becomes legend."}
 }
-
 def ensure_dirs():
     os.makedirs(SAVE_DIR, exist_ok=True)
-
 def safe_json_load(path):
     try:
         if not os.path.exists(path):
@@ -122,7 +112,6 @@ def safe_json_load(path):
     except Exception as e:
         print(f"⚠️ Error loading {path}: {e}")
         return None
-
 def safe_json_write(path, data):
     try:
         ensure_dirs()
@@ -135,31 +124,26 @@ def safe_json_write(path, data):
     except Exception as e:
         print(f"⚠️ Error saving {path}: {e}")
         return False
-
 def clear_screen():
     os.system("cls" if os.name == "nt" else "clear")
-
 def play_sound(frequency: int, duration: int = 200):
     """Play a simple beep sound if sound is enabled."""
     if SOUND_ENABLED:
         try:
             winsound.Beep(frequency, duration)
         except Exception:
-            pass  # Silently fail if sound device unavailable
-
+            pass
 def press_enter():
     try:
         input("\n⚡ Press Enter to continue...")
     except (EOFError, KeyboardInterrupt):
         pass
-
 def safe_input(prompt=""):
     try:
         return input(prompt).strip()
     except (EOFError, KeyboardInterrupt):
         print("\n⚠️ Input interrupted")
         return ""
-
 def get_valid_choice(prompt, valid_choices, error_msg="⚠️ Invalid choice."):
     while True:
         c = safe_input(prompt)
@@ -167,7 +151,6 @@ def get_valid_choice(prompt, valid_choices, error_msg="⚠️ Invalid choice."):
             return c
         print(error_msg)
         press_enter()
-
 def _find_record_case_insensitive(d: dict, key: str):
     if not isinstance(d, dict) or not key:
         return None, None
@@ -176,20 +159,17 @@ def _find_record_case_insensitive(d: dict, key: str):
         if k.lower() == key_low:
             return k, v
     return None, None
-
 def hash_password(password: str, salt: Optional[bytes] = None) -> dict:
     if salt is None:
         salt = os.urandom(16)
     h = hashlib.sha256(salt + password.encode()).hexdigest()
     return {"hash": h, "salt": salt.hex()}
-
 def verify_password(password: str, stored: dict) -> bool:
     try:
         salt = bytes.fromhex(stored.get("salt", ""))
         return hashlib.sha256(salt + password.encode()).hexdigest() == stored.get("hash", "")
     except Exception:
         return False
-
 def normalize_player(p: Optional[dict]) -> dict:
     """Return a safe copy of player dict using defaults and validation."""
     p = p or {}
@@ -225,17 +205,14 @@ def normalize_player(p: Optional[dict]) -> dict:
     if not isinstance(player.get("name"), str) or not player["name"].strip():
         player["name"] = DEFAULT_PLAYER["name"]
     return player
-
 def load_users():
     global USERS
     data = safe_json_load(USERS_FILE)
     USERS = data if isinstance(data, dict) else {}
     return USERS
-
 def save_users():
     global USERS
     return safe_json_write(USERS_FILE, USERS)
-
 def load_admins():
     global ADMINS
     data = safe_json_load(ADMINS_FILE)
@@ -244,11 +221,9 @@ def load_admins():
         ADMINS["admin"] = hash_password("admin123")
         save_admins()
     return ADMINS
-
 def save_admins():
     global ADMINS
     return safe_json_write(ADMINS_FILE, ADMINS)
-
 def load_leaderboard():
     global LEADERBOARD
     data = safe_json_load(LEADERBOARD_FILE)
@@ -269,11 +244,9 @@ def load_leaderboard():
                     continue
         LEADERBOARD = out[:10]
     return LEADERBOARD
-
 def save_leaderboard():
     global LEADERBOARD
     return safe_json_write(LEADERBOARD_FILE, LEADERBOARD)
-
 def update_leaderboard_with_player(player: dict):
     if not isinstance(player, dict) or "name" not in player:
         return False
@@ -288,7 +261,6 @@ def update_leaderboard_with_player(player: dict):
     LEADERBOARD.sort(key=lambda x: x.get("score", 0), reverse=True)
     del LEADERBOARD[10:]
     return save_leaderboard()
-
 def load_questions():
     global QUESTIONS
     data = safe_json_load(QUESTION_FILE)
@@ -321,24 +293,20 @@ def load_questions():
     else:
         QUESTIONS = valid
     return QUESTIONS
-
 def player_save_path(username: str) -> str:
     safe_username = re.sub(r'[<>:"/\\|?*]', '_', username)
     return os.path.join(SAVE_DIR, f"{safe_username}.json")
-
 def load_player(username: str) -> dict:
     ensure_dirs()
     data = safe_json_load(player_save_path(username))
     if not data:
         return normalize_player({"name": username})
     return normalize_player(data)
-
 def save_player(username: str, player: dict) -> bool:
     if not isinstance(player, dict):
         print("⚠️ Invalid player data")
         return False
     return safe_json_write(player_save_path(username), normalize_player(player))
-
 def health_bar(current, maximum, length=20):
     try:
         maximum = max(1, int(maximum))
@@ -348,7 +316,6 @@ def health_bar(current, maximum, length=20):
         current = 0
     filled = max(0, min(length, int(length * current / maximum)))
     return "🟩" * filled + "⬜" * (length - filled) + f" {current}/{maximum} HP"
-
 def shield_bar(current, maximum=3, length=10):
     try:
         maximum = max(1, int(maximum))
@@ -358,12 +325,10 @@ def shield_bar(current, maximum=3, length=10):
         current = 0
     filled = max(0, min(length, int(length * current / maximum)))
     return "🛡️" * filled + "⬜" * (length - filled) + f" {current}/{maximum} SP"
-
 def username_valid(username: str) -> bool:
     if not username or not (3 <= len(username) <= 20):
         return False
     return bool(re.match(r'^[A-Za-z0-9_-]+$', username))
-
 def register_user():
     load_users()
     username = safe_input("Choose a username (3-20 chars, letters/numbers/_/- only): ").strip()
@@ -389,7 +354,6 @@ def register_user():
     print(f"✅ Account created for {username}")
     press_enter()
     return username
-
 def login_account(is_admin=False):
     if is_admin:
         load_admins()
@@ -411,7 +375,6 @@ def login_account(is_admin=False):
     print("⚠️ Invalid credentials.")
     press_enter()
     return None
-
 def reset_password():
     load_users()
     username = safe_input("Enter your username: ").strip()
@@ -430,7 +393,6 @@ def reset_password():
     if save_users():
         print("✅ Password reset successful!"); press_enter(); return key
     print("⚠️ Failed to save password change."); press_enter(); return None
-
 def ask_question(q: dict) -> bool:
     opts = q.get("options", [])
     ans = q.get("answer")
@@ -462,7 +424,6 @@ def ask_question(q: dict) -> bool:
         print("⚠️ Invalid input. Use an option number or exact option text.")
     print(f"⚠️ Max attempts. The correct answer was: {ans}")
     return False
-
 def get_xp_required(level: int) -> int:
     try:
         level = max(1, int(level))
@@ -476,11 +437,10 @@ def get_xp_required(level: int) -> int:
         return min(int(result), 1000000)
     except Exception:
         return 1000
-
 def check_level_up(player: dict) -> bool:
     leveled = False
     while player["xp"] >= get_xp_required(player["level"]):
-        play_sound(1200, 300)  # Level up chime
+        play_sound(1200, 300)
         req = get_xp_required(player["level"])
         player["xp"] -= req
         player["level"] += 1
@@ -510,7 +470,6 @@ def check_level_up(player: dict) -> bool:
             print(f"❤️ Restored {player['hp'] - old_hp} HP! Now at full health.")
         press_enter()
     return leveled
-
 def get_level_scaling_factor(player_level: int) -> float:
     if player_level <= 1:
         return 1.0
@@ -519,7 +478,6 @@ def get_level_scaling_factor(player_level: int) -> float:
     if player_level <= 10:
         return 2.2 + (player_level - 5) * 0.25
     return 3.45 + (player_level - 10) * 0.2
-
 def get_enemy_name_variant(base_name: str, player_level: int) -> str:
     variants = {
         "Slime": ["Slime","Green Slime","Acid Slime","Giant Slime","Toxic Slime","Crystal Slime","Shadow Slime","Ancient Slime","Void Slime","Primordial Slime"],
@@ -532,7 +490,6 @@ def get_enemy_name_variant(base_name: str, player_level: int) -> str:
         return lst[0]
     idx = min(len(lst)-1, (player_level-1)//1 if player_level<=10 else 8 + (player_level-10)//3)
     return lst[idx]
-
 def make_enemy(diff: str, player_level: int=1) -> dict:
     base = {
         "easy": {"name":"Slime","hp":35,"damage":6,"xp_reward":10,"gold_base":25},
@@ -552,12 +509,10 @@ def make_enemy(diff: str, player_level: int=1) -> dict:
         "xp_reward": int(base["xp_reward"] * (1 + (player_level - 1) * 0.1)),
         "gold_base": int(base["gold_base"] * (1 + (player_level - 1) * 0.15))
     }
-
 def get_item_drop_chance(difficulty: str, player_level: int) -> float:
     base = {"easy":0.15,"medium":0.2,"hard":0.25,"boss":0.4}.get(difficulty,0.2)
     level_bonus = min(0.2, player_level * 0.02)
     return base + level_bonus
-
 def apply_victory_rewards(player: dict, enemy: dict, diff: str):
     xp_reward = enemy.get("xp_reward", 10)
     player["xp"] += xp_reward
@@ -575,7 +530,6 @@ def apply_victory_rewards(player: dict, enemy: dict, diff: str):
         item_key = random.choice(list(ITEMS.keys()))
         add_item(player, item_key)
         print(f"🎁 You found a {ITEMS[item_key]['name']}!")
-
 def add_item(player: dict, item_key: str, qty: int=1) -> bool:
     if item_key not in ITEMS: return False
     try:
@@ -585,7 +539,6 @@ def add_item(player: dict, item_key: str, qty: int=1) -> bool:
         return True
     except Exception:
         return False
-
 def use_item(player: dict, item_key: str) -> bool:
     inv = player.setdefault("inventory", {})
     if inv.get(item_key,0) <= 0:
@@ -610,14 +563,12 @@ def use_item(player: dict, item_key: str) -> bool:
         print("🛡️ Shield activated. You have 3 shield points to block hits.")
         return True
     print("⚠️ Unknown item."); return False
-
 def show_inventory(player: dict):
     while True:
         clear_screen()
         print("🎒 Inventory\n" + "─"*30)
         inv = player.get("inventory", {})
         available_items = []
-        
         if not inv or not any(v>0 for v in inv.values()):
             print("Empty")
         else:
@@ -625,9 +576,8 @@ def show_inventory(player: dict):
                 if v > 0 and k in ITEMS:
                     it = ITEMS[k]
                     available_items.append((k, v, it))
-                    letter = chr(65 + len(available_items) - 1)  # A, B, C, etc.
+                    letter = chr(65 + len(available_items) - 1)
                     print(f"[{letter}] {it['name']}: {v} - {it['desc']}")
-        
         print(f"\n💰 Gold: {player.get('gold',0)}")
         if available_items:
             print(f"\n📊 Current HP: {health_bar(player['hp'], player['max_hp'], 15)}")
@@ -635,13 +585,11 @@ def show_inventory(player: dict):
             choice = safe_input("👉 Choose: ").upper()
             if not choice:
                 break
-            
             if len(choice) == 1:
-                idx = ord(choice) - 65  # Convert A->0, B->1, etc.
+                idx = ord(choice) - 65
                 if 0 <= idx < len(available_items):
                     item_key = available_items[idx][0]
                     if use_item(player, item_key):
-                        # Remove zero-count items from inventory
                         if player.get("inventory", {}).get(item_key, 0) <= 0:
                             player["inventory"].pop(item_key, None)
                         press_enter()
@@ -652,7 +600,6 @@ def show_inventory(player: dict):
         else:
             press_enter()
             break
-
 def shop_menu(player: dict):
     while True:
         clear_screen()
@@ -683,21 +630,16 @@ def shop_menu(player: dict):
                 print("⚠️ Invalid item number."); press_enter()
         except Exception:
             print("⚠️ Please enter a valid number."); press_enter()
-
 def battle(player: dict, enemy: dict, qs: list, diff: str="easy") -> bool:
     if not qs:
         print("⚠️ No questions available for this difficulty."); press_enter(); return False
-    
-    # Store initial values to restore if defeated
     initial_score = player.get("score", 0)
     initial_xp = player.get("xp", 0)
     initial_gold = player.get("gold", 0)
-    
     player.setdefault("shield_points", 0)
     questions_copy = qs.copy()
     random.shuffle(questions_copy)
     qidx = 0
-
     while player["hp"] > 0 and enemy["hp"] > 0:
         clear_screen()
         print("╔" + "═"*40 + "╗")
@@ -726,7 +668,7 @@ def battle(player: dict, enemy: dict, qs: list, diff: str="easy") -> bool:
             random.shuffle(questions_copy); qidx = 0
         q = questions_copy[qidx]; qidx += 1
         if ask_question(q):
-            play_sound(800, 150)  # High beep for correct
+            play_sound(800, 150)
             combo_bonus = min(player.get("combo",0), 10)
             total_damage = player["damage"] + combo_bonus
             print(f"✅ Correct! You deal {total_damage} damage!")
@@ -738,7 +680,7 @@ def battle(player: dict, enemy: dict, qs: list, diff: str="easy") -> bool:
             if check_level_up(player):
                 pass
         else:
-            play_sound(300, 300)  # Low beep for wrong
+            play_sound(300, 300)
             print("❌ Wrong answer!")
             if DEV_MODE["god_mode"]:
                 print("💻 Dev Mode: No damage taken!")
@@ -754,49 +696,38 @@ def battle(player: dict, enemy: dict, qs: list, diff: str="easy") -> bool:
                     player["hp"] = max(0, player["hp"] - dmg)
             player["combo"] = 0
         if enemy["hp"] <= 0:
-            play_sound(1000, 400)  # Victory fanfare
+            play_sound(1000, 400)
             print(f"\n🎉 Victory! You defeated the {enemy['name']}!")
             apply_victory_rewards(player, enemy, diff)
             press_enter(); return True
         if player["hp"] <= 0:
-            play_sound(200, 500)  # Defeat sound
+            play_sound(200, 500)
             print(f"\n💀 Defeat! You were defeated by the {enemy['name']}...")
-
-            # Revert score, XP and apply gold loss on defeat for medium+ and random difficulties
             if diff in ("medium", "hard", "boss", "random"):
                 print("📉 No score or XP recorded due to defeat!")
                 player["score"] = initial_score
                 player["xp"] = initial_xp
-
-                # Calculate and apply gold loss (25% of current gold, max 100)
                 gold_loss = min(player.get("gold", 0) // 4, 100)
                 if gold_loss > 0:
                     player["gold"] = max(0, player.get("gold", 0) - gold_loss)
                     print(f"💸 Lost {gold_loss} gold as penalty!")
-
-            # Standard recovery mechanics
             player["hp"] = player["max_hp"] // 4
             print(f"❤️ Recovered to {player['hp']} HP")
             press_enter(); return False
-            
         press_enter()
     return player["hp"] > 0
-
 def get_current_chapter(player_level: int) -> dict:
     """Determine the current story chapter based on player level."""
     for chapter_id, chapter_data in STORY_CHAPTERS.items():
         min_level, max_level = chapter_data["range"]
         if min_level <= player_level <= max_level:
             return chapter_data
-    # Default to chapter 1 if level is out of range
     return STORY_CHAPTERS[1]
-
 def show_story_intro():
     """Display the introductory story screen."""
     clear_screen()
     print(STORY_INTRO)
     press_enter()
-
 def show_battle_story(player: dict, difficulty: str):
     """Display a story snippet before battle based on chapter and difficulty."""
     chapter = get_current_chapter(player["level"])
@@ -806,7 +737,6 @@ def show_battle_story(player: dict, difficulty: str):
     print(f"{story_text}\n")
     print("─"*50)
     press_enter()
-
 def show_leaderboard():
     load_leaderboard()
     clear_screen()
@@ -818,7 +748,6 @@ def show_leaderboard():
             name = e.get("name","Unknown")[:10]
             print(f"{i:2}. {name:<10} | Score: {e.get('score',0):<6} | Lv: {e.get('level',1):<3} | XP: {e.get('xp',0)}")
     print("─"*50)
-
 def dev_menu():
     while True:
         clear_screen()
@@ -862,7 +791,6 @@ def dev_menu():
             break
         else:
             print("⚠️ Invalid choice."); press_enter()
-
 def create_sample_questions():
     sample_questions = [
         {"question":"What is 2 + 2?","options":["3","4","5","6"],"answer":"4","difficulty":"easy"},
@@ -878,7 +806,6 @@ def create_sample_questions():
         print(f"✅ Created {QUESTION_FILE} with {len(sample_questions)} sample questions.")
     else:
         print(f"⚠️ Failed to create {QUESTION_FILE}")
-
 def show_question_stats():
     try:
         qs = load_questions()
@@ -894,7 +821,6 @@ def show_question_stats():
         print(f"\nFile: {QUESTION_FILE}")
     except Exception as e:
         print(f"⚠️ Error analyzing questions: {e}")
-
 def battle_menu(player: dict, username: str, questions: list):
     while True:
         clear_screen()
@@ -914,25 +840,17 @@ def battle_menu(player: dict, username: str, questions: list):
         diff = mapping[diff_choice]
         if player["hp"] <= 0:
             print("⚠️ You need to heal before battling!"); press_enter(); continue
-
         filtered = []
         if diff == "random":
-            # --- FIX #2 (Efficiency) ---
-            # Get all non-boss questions
             all_remaining = [q for q in questions if q.get("difficulty") in ("easy", "medium", "hard")]
-            
             if not all_remaining:
                 print(f"⚠️ No 'easy', 'medium', or 'hard' questions found in {QUESTION_FILE}.")
                 print("Cannot start Random Battle. Please add questions.")
                 press_enter()
-                continue # Go back to the menu
-                
-            # Calculate how many questions to pick, but no more than available
+                continue
             total_questions = min(random.randint(10, 20), len(all_remaining))
             filtered = random.sample(all_remaining, total_questions)
-            
         else:
-            # --- More readable filtering ---
             if diff == "easy":
                 filtered = [q for q in questions if q.get("difficulty") == "easy"]
             elif diff == "medium":
@@ -941,29 +859,21 @@ def battle_menu(player: dict, username: str, questions: list):
                 filtered = [q for q in questions if q.get("difficulty") in ("medium", "hard")]
             elif diff == "boss":
                 filtered = [q for q in questions if q.get("difficulty") == "boss"]
-
-        # --- FIX #1 (Boss Battle Bug) ---
         if not filtered:
             if diff == "boss":
-                # This is the critical fix: stop a boss battle if no boss questions exist
                 print(f"⚠️ CRITICAL: No 'boss' difficulty questions found in {QUESTION_FILE}.")
                 print("Cannot start Boss Battle. Please add boss questions.")
                 press_enter()
-                continue # Go back to the battle menu
-            
-            elif diff != "random": # For easy/medium/hard, a fallback is acceptable
+                continue
+            elif diff != "random":
                 print(f"⚠️ No specific questions found for {diff}, using a general mix.")
-                filtered = questions # Fallback to all questions
-            
-            # Final check: if 'questions' was also empty, we must stop
+                filtered = questions
             if not filtered:
                 print(f"⚠️ CRITICAL: No questions found in {QUESTION_FILE} at all!")
                 print("Cannot start battle. Please add questions.")
                 press_enter()
-                continue # Go back to the battle menu
-
+                continue
         enemy = make_enemy(diff if diff != "random" else "medium", player["level"])
-        # Show battle story before preparing
         show_battle_story(player, diff)
         print(f"\n🎯 Preparing {diff.capitalize()} battle against {enemy['name']}...")
         if diff == "random":
@@ -990,14 +900,11 @@ def battle_menu(player: dict, username: str, questions: list):
                 return
         else:
             print("💀 Perhaps try an easier difficulty or heal up first..."); press_enter(); break
-
 def player_game_loop(player: dict, username: str, questions: list):
-    # Show intro story if not shown before
     if not player.get("story_shown", False):
         show_story_intro()
         player["story_shown"] = True
         save_player(username, player)
-
     while True:
         clear_screen()
         req = get_xp_required(player['level'])
@@ -1030,7 +937,6 @@ def player_game_loop(player: dict, username: str, questions: list):
             print("👋 See you next time!"); press_enter(); break
         else:
             print("⚠️ Invalid choice."); press_enter()
-
 def log_error(error_msg, exc_info=None):
     try:
         with open("error.log", "a") as f:
@@ -1039,7 +945,6 @@ def log_error(error_msg, exc_info=None):
                 f.write(f"\n{traceback.format_exc()}")
     except:
         pass
-
 def main():
     try:
         ensure_dirs()
@@ -1049,7 +954,6 @@ def main():
         load_leaderboard()
         print("🎮 Loading Quiz Battle Game...")
         print(f"✅ Game ready with {len(QUESTIONS)} questions!")
-        
         while True:
             try:
                 clear_screen()
@@ -1092,7 +996,6 @@ def main():
                 print("The error has been logged. Press Enter to continue...")
                 press_enter()
                 continue
-                
     except KeyboardInterrupt:
         print("\n\n👋 Game interrupted. Your progress has been saved!")
     except Exception as e:
@@ -1100,6 +1003,5 @@ def main():
         print(f"\n⚠️ A critical error occurred: {str(e)}")
         print("The error has been logged to error.log")
         print("Please check the log file and restart the game.")
-
 if __name__ == "__main__":
     main()
